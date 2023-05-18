@@ -1,4 +1,4 @@
-// This lambda function queries Square for all inventory items with a low stock alert and returns the variant ids for all matches
+// This lambda function queries Square for the item details based on an id
 
 import { Client, Environment, ApiError } from "square";
 
@@ -14,14 +14,14 @@ export const handler = async (event, context, callback) => {
       });
     const { catalogApi } = client;
 
-    const res = await catalogApi.searchCatalogItems({
-      stockLevels: ["LOW"],
-    });
-    const { matchedVariationIds, items } = res.result;
+    const data = await JSON.parse(event.body);
+    const id = data.id;
+
+    const res = await catalogApi.retrieveCatalogObject(id);
+
     responseObject = {
       result: "success",
-      ids: matchedVariationIds,
-      items,
+      data: res.result,
     };
   } catch (error) {
     if (error instanceof ApiError) {
